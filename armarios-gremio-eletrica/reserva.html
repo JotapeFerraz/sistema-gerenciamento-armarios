@@ -36,6 +36,44 @@
                 <!-- O JavaScript vai desenhar as 144 caixinhas aqui -->
             </div>
         </section>
+        <!-- MODAL DE CHECKOUT (Oculto por padrão) -->
+    <div id="modal-checkout" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Confirmar Reserva: Armário <span id="checkout-armario-num"></span></h2>
+            
+            <!-- Passo 1: O Termo -->
+            <div class="checkout-step">
+                <h3>1. Termo de Compromisso</h3>
+                <p>O prazo de locação é de 6 (seis) meses. Leia as regras de conservação e desocupação.</p>
+                <a href="./assets/termo-g3e.pdf" download="Termo_Armarios_G3E.pdf" class="btn-download">Baixar Termo PDF</a>
+                
+                <label class="upload-label">
+                    Anexe o termo assinado (PDF/Foto):
+                    <input type="file" id="upload-termo" accept=".pdf,image/*" required>
+                </label>
+            </div>
+
+            <!-- Passo 2: O Pagamento -->
+            <div class="checkout-step">
+                <h3>2. Pagamento (R$ 40,00/semestre)</h3>
+                <div class="pix-area">
+                    <img src="./assets/pix-qrcode.png" alt="QR Code do PIX" class="pix-img">
+                    <div class="pix-copia-cola">
+                        <input type="text" id="pix-codigo" value="00020126910014br.gov.bcb.pix0136d469312d-6601-4b60-b395-e6e51279f65c0229Locacao_Semestral_Armario_G3E520400005303986540540.005802BR5924JOAO_PEDRO_SOARES_FERRAZ6008IPATINGA62150511armariosg3e6304B845" readonly>
+                        <button type="button" id="btn-copiar-pix">Copiar PIX</button>
+                    </div>
+                </div>
+                
+                <label class="upload-label">
+                    Anexe o comprovante de pagamento:
+                    <input type="file" id="upload-comprovante" accept=".pdf,image/*" required>
+                </label>
+            </div>
+
+            <button id="btn-finalizar-reserva" class="btn-primary">Concluir Pré-Reserva</button>
+        </div>
+    </div>
     </main>
 
     <script type="module" src="./js/reserva.js"></script>
