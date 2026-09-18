@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Armários - G3E</title>
+    <!-- Reaproveitamos o estilo geral e adicionamos o estilo do grid -->
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/grid.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="user-info">
+            Olá, <span id="user-name">Carregando...</span>
+        </div>
+        <button id="btn-logout" class="btn-secondary">Sair do Sistema</button>
+    </header>
+
+    <main class="map-container">
+        <h2>Selecione um armário disponível</h2>
+        <p class="legenda">
+            <span class="dot verde"></span> Livre 
+            <span class="dot cinza"></span> Ocupado/Pendente
+        </p>
+        
+        <section class="locker-section">
+            <h3>Corredor do Grêmio (32 Armários)</h3>
+            <div id="grid-corredor" class="locker-grid corredor-grid">
+                <!-- O JavaScript vai desenhar as 32 caixinhas aqui -->
+            </div>
+        </section>
+
+        <section class="locker-section">
+            <h3>Bloco 4 - 1º Andar (144 Armários)</h3>
+            <div id="grid-bloco4" class="locker-grid bloco4-grid">
+                <!-- O JavaScript vai desenhar as 144 caixinhas aqui -->
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="./js/reserva.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+/* ==== CABEÇALHO E LAYOUT GERAL ==== */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: #b00000;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-secondary {
+    background: white;
+    color: #b00000;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.map-container {
+    padding: 30px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.legenda {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+.dot.verde { background-color: #28a745; }
+.dot.cinza { background-color: #6c757d; }
+
+.locker-section {
+    margin-bottom: 40px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* ==== A GRADE DE ARMÁRIOS ==== */
+.locker-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* O corredor tem menos armários, colunas um pouco maiores */
+.corredor-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); }
+
+/* O bloco 4 tem muitos armários, colunas mais justas */
+.bloco4-grid { grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); }
+
+.locker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
+    transition: 0.2s;
+    user-select: none;
+}
+
+/* Status das cores baseadas no banco de dados */
+.locker.livre {
+    background-color: #28a745;
+    border: 2px solid #1e7e34;
+    cursor: pointer;
+}
+
+.locker.livre:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.locker.ocupado, .locker.alugado, .locker.pendente { 
+    background-color: #6c757d;
+    border: 2px solid #5a6268;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
