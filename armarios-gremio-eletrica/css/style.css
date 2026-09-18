@@ -1,0 +1,132 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.auth-box {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-box h2 {
+    text-align: center;
+    color: #b00000;
+    margin-bottom: 5px;
+}
+
+.auth-box p {
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.auth-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.auth-tabs button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.auth-tabs button.active {
+    color: #b00000;
+    border-bottom: 2px solid #b00000;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background-color: #b00000;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background-color: #8a0000;
+}
+
+.hidden {
+    display: none;
+}
+/* ==== ESTILOS DO BOTÃO DE VER SENHA ==== */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px; /* Abre espaço para o botão não ficar em cima do texto */
+}
+
+.btn-toggle-senha {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    transition: 0.2s;
+}
+
+.btn-toggle-senha:hover {
+    color: #b00000;
+}

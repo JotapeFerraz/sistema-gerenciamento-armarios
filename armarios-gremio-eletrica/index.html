@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Armários - Engenharia UFMG</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <main class="auth-container">
+        <div class="auth-box">
+            <h2>Armários G3E</h2>
+            <p>Sistema de alocação de armários</p>
+            
+            <div class="auth-tabs">
+                <button id="tab-login" class="active">Entrar</button>
+                <button id="tab-cadastro">Cadastrar</button>
+            </div>
+
+            <!-- Formulário de Login -->
+            <form id="form-login" class="auth-form">
+                <div class="input-group">
+                    <label for="login-email">E-mail</label>
+                    <input type="email" id="login-email" placeholder="seuemail@ufmg.br" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-senha">Senha</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-senha" placeholder="••••••••" required>
+                        <button type="button" class="btn-toggle-senha" data-target="login-senha">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Acessar Plataforma</button>
+            </form>
+
+            <!-- Formulário de Cadastro -->
+            <form id="form-cadastro" class="auth-form hidden">
+                <div class="input-group">
+                    <label for="cad-nome">Nome Completo</label>
+                    <input type="text" id="cad-nome" required>
+                </div>
+                <div class="input-group">
+                    <label for="cad-matricula">Número de Matrícula</label>
+                    <input type="text" id="cad-matricula" required>
+                </div>
+                <div class="input-group">
+                    <label for="cad-cpf">CPF</label>
+                    <input type="text" id="cad-cpf" placeholder="000.000.000-00" required maxlength="14">
+                </div>
+                <div class="input-group">
+                    <label for="cad-telefone">Telefone (WhatsApp)</label>
+                    <input type="tel" id="cad-telefone" placeholder="(00) 00000-0000" required maxlength="15">
+                </div>
+                <div class="input-group">
+                    <label for="cad-email">E-mail</label>
+                    <input type="email" id="cad-email" placeholder="usuario@dominio.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="cad-senha">Criar Senha</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="cad-senha" required minlength="6">
+                        <button type="button" class="btn-toggle-senha" data-target="cad-senha">👁️</button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="cad-confirma-senha">Confirmar Senha</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="cad-confirma-senha" required minlength="6">
+                        <button type="button" class="btn-toggle-senha" data-target="cad-confirma-senha">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Criar Conta</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/firebase.js"></script>
+    <script type="module" src="./js/auth.js"></script>
+</body>
+</html>
