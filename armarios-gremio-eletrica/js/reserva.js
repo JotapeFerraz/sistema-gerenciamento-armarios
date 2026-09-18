@@ -1,7 +1,8 @@
 // ==== IMPORTAÇÕES ====
-import { auth, db } from "./firebase.js";
+import { auth, db, storage } from "./firebase.js"; // Adicionado storage
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"; // Adicionado updateDoc
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"; // Novas funções de Storage
 
 // ==== VARIÁVEIS GLOBAIS ====
 let armarioSelecionado = null;
@@ -121,4 +122,59 @@ document.getElementById("btn-copiar-pix").addEventListener("click", () => {
 });
 
 // ==== 5. FINALIZAR RESERVA E ENVIAR FICHEIROS ====
-// (Esta será a etapa que vamos implementar de seguida, onde o utilizador anexa o PDF e o comprovativo)
+const btnFinalizar = document.getElementById("btn-finalizar-reserva");
+
+btnFinalizar.addEventListener("click", async () => {
+    const inputTermo = document.getElementById("upload-termo");
+    const inputComprovante = document.getElementById("upload-comprovante");
+
+    // 1. Validação simples: Confere se a pessoa anexou os dois arquivos
+    if (inputTermo.files.length === 0 || inputComprovante.files.length === 0) {
+        return alert("Por favor, anexe o Termo assinado e o Comprovante do PIX para concluir.");
+    }
+
+    // Muda o texto do botão para avisar que está enviando
+    btnFinalizar.textContent = "Enviando arquivos... Aguarde.";
+    btnFinalizar.disabled = true;
+
+    try {
+        const arquivoTermo = inputTermo.files[0];
+        const arquivoComprovante = inputComprovante.files[0];
+
+        // 2. Prepara o caminho no Firebase Storage (Cria pastas organizadas por número do armário)
+        const termoRef = ref(storage, `termos/${armarioSelecionado}_${usuarioLogadoUid}_${arquivoTermo.name}`);
+        const comprovanteRef = ref(storage, `comprovantes/${armarioSelecionado}_${usuarioLogadoUid}_${arquivoComprovante.name}`);
+
+        // 3. Faz o upload real dos arquivos
+        await uploadBytes(termoRef, arquivoTermo);
+        await uploadBytes(comprovanteRef, arquivoComprovante);
+
+        // 4. Pega os links públicos gerados para salvar no banco de dados
+        const linkTermoGerado = await getDownloadURL(termoRef);
+        const linkComprovanteGerado = await getDownloadURL(comprovanteRef);
+
+        // 5. Atualiza o armário no Firestore
+        const armarioRef = doc(db, "armarios", armarioSelecionado);
+        await updateDoc(armarioRef, {
+            status: "pendente",
+            usuarioAlocado: usuarioLogadoUid,
+            linkTermo: linkTermoGerado,
+            linkComprovantePix: linkComprovanteGerado
+        });
+
+        // 6. Sucesso!
+        alert(`Pré-reserva do armário ${armarioSelecionado} realizada com sucesso! Aguarde a aprovação do grêmio.`);
+        
+        // Fecha o modal e recarrega a grade (o armário vai ficar cinza agora)
+        document.getElementById("modal-checkout").classList.add("hidden");
+        carregarMapaArmarios();
+
+    } catch (error) {
+        console.error("Erro no upload: ", error);
+        alert("Ocorreu um erro ao enviar sua reserva. Tente novamente.");
+    } finally {
+        // Devolve o botão ao estado normal
+        btnFinalizar.textContent = "Concluir Pré-Reserva";
+        btnFinalizar.disabled = false;
+    }
+});
