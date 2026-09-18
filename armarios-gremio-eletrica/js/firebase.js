@@ -6,8 +6,9 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-s
 
 // Suas chaves copiadas do painel
 const firebaseConfig = {
-  apiKey: "AIzaSyBponxc51KLub3GNBuVZgUQ-TRi3qd-zvI",
+  apiKey: "AIzaSyBponxc51KLUb3GNBuVZgUQ-TRI3qd-zvI",
   authDomain: "armarios-gremio.firebaseapp.com",
+  databaseURL: "https://armarios-gremio-default-rtdb.firebaseio.com",
   projectId: "armarios-gremio",
   storageBucket: "armarios-gremio.firebasestorage.app",
   messagingSenderId: "1011340582434",
