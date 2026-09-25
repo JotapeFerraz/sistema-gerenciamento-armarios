@@ -45,12 +45,12 @@
             <!-- Passo 1: O Termo -->
             <div class="checkout-step">
                 <h3>1. Termo de Compromisso</h3>
-                <p>O prazo de locação é de 6 (seis) meses. Leia as regras de conservação e desocupação.</p>
-                <a href="./assets/termo-g3e.pdf" download="Termo_Armarios_G3E.pdf" class="btn-download">Baixar Termo PDF</a>
+                <p>Leia o documento abaixo para habilitar o aceite da reserva.</p>
+                <button type="button" id="btn-ler-termo" class="btn-secondary">Ler Termo de Compromisso</button>
                 
-                <label class="upload-label">
-                    Anexe o termo assinado (PDF/Foto):
-                    <input type="file" id="upload-termo" accept=".pdf,image/*" required>
+                <label class="checkbox-label mt-10">
+                    <input type="checkbox" id="check-termo" disabled>
+                    Aceito o Termo de Compromisso da Locação
                 </label>
             </div>
 
@@ -72,6 +72,35 @@
             </div>
 
             <button id="btn-finalizar-reserva" class="btn-primary">Concluir Pré-Reserva</button>
+        </div>
+    </div>
+    <!-- MODAL DO TEXTO DO TERMO -->
+    <div id="modal-termo" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-termo">&times;</span>
+            <h2>TERMO DE COMPROMISSO E RESPONSABILIDADE - LOCAÇÃO DE ARMÁRIO</h2>
+            <div class="texto-termo">
+                <p><strong>LOCADOR:</strong> Grêmio dos Estudantes de Engenharia Elétrica da UFMG (G3E)[cite: 10].</p>
+                <p>Pelo presente instrumento, as partes firmam o compromisso de locação de um Armário, localizado nas dependências da Escola de Engenharia da UFMG, sujeitando-se às seguintes cláusulas e condições[cite: 10]:</p>
+                
+                <p><strong>CLÁUSULA 1ª - DO PRAZO E DA RENOVAÇÃO</strong><br>
+                O prazo de locação é de 6 (seis) meses[cite: 10].<br>
+                § 1º. A renovação não é automática[cite: 10]. Havendo interesse na prorrogação, o(a) LOCATÁRIO(A) deverá procurar o G3E com no mínimo 15 (quinze) dias de antecedência do vencimento para firmar novo acordo, sujeito à disponibilidade[cite: 10].</p>
+                
+                <p><strong>CLÁUSULA 2ª DO USO E CONSERVAÇÃO DO BEM</strong><br>
+                O armário destina-se exclusivamente à guarda de materiais acadêmicos e pertences pessoais do(a) LOCATÁRIO(A), sendo expressamente PROIBIDO[cite: 10]: I. Produtos inflamáveis, tóxicos, ilícitos ou que exalem odores fortes[cite: 10]; II. Pintar, riscar ou realizar qualquer modificação na estrutura interna ou externa do armário[cite: 10]; III. Sublocar o armário para terceiros[cite: 10].<br>
+                § 1º. O(a) LOCATÁRIO(A) compromete-se a manter o armário limpo e conservado, arcando com os custos de reparo caso seja constatado qualquer dano estrutural ou rasura ao final do contrato[cite: 10].</p>
+                
+                <p><strong>CLÁUSULA 3ª DA SEGURANÇA E RESPONSABILIDADE</strong><br>
+                A aquisição, colocação e guarda da chave do cadeado utilizado no armário são de inteira e exclusiva responsabilidade do(a) LOCATÁRIO(A)[cite: 10].<br>
+                § 1º. O G3E não se responsabiliza, em hipótese alguma, por furtos, roubos, perdas ou danos aos objetos guardados no interior do armário[cite: 10].</p>
+                
+                <p><strong>CLÁUSULA 4ª DO ENCERRAMENTO E DESOCUPAÇÃO</strong><br>
+                Ao término do prazo estipulado na Cláusula 1ª, caso não haja renovação, o(a) LOCATÁRIO(A) obriga-se a esvaziar o armário, retirar o seu cadeado e deixá-lo limpo e desimpedido[cite: 10].<br>
+                § 1º. O não cumprimento da desocupação no prazo acarretará o rompimento imediato do cadeado por parte da Diretoria do G3E[cite: 10].<br>
+                § 2º. Os pertences retirados ficarão retidos na sede do Grêmio por um prazo máximo de 30 (trinta) dias[cite: 10]. Após esse período, o G3E dará a destinação que julgar conveniente (doação ou descarte), sem direito a qualquer reclamação ou indenização por parte do(a) LOCATÁRIO(A)[cite: 10].</p>
+            </div>
+            <button type="button" id="btn-concordar-termo" class="btn-primary">Li e aceito os termos</button>
         </div>
     </div>
     </main>

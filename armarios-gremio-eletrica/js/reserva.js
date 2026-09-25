@@ -121,59 +121,83 @@ document.getElementById("btn-copiar-pix").addEventListener("click", () => {
     }, 2000);
 });
 
-// ==== 5. FINALIZAR RESERVA E ENVIAR FICHEIROS ====
+// ==== 5. LÓGICA DO NOVO TERMO DE COMPROMISSO ====
+const modalTermo = document.getElementById("modal-termo");
+const btnLerTermo = document.getElementById("btn-ler-termo");
+const btnFecharTermo = document.querySelector(".close-termo");
+const btnConcordarTermo = document.getElementById("btn-concordar-termo");
+const checkboxTermo = document.getElementById("check-termo");
+
+btnLerTermo.addEventListener("click", () => {
+    modalTermo.classList.remove("hidden");
+});
+
+// Fechar no "X" sem aceitar
+btnFecharTermo.addEventListener("click", () => {
+    modalTermo.classList.add("hidden");
+});
+
+// Botão "Li e aceito" dentro do texto
+btnConcordarTermo.addEventListener("click", () => {
+    modalTermo.classList.add("hidden");
+    checkboxTermo.disabled = false; // Destrava a caixa
+    checkboxTermo.checked = true;   // Marca automaticamente
+});
+
+// Sempre que abrir o checkout de um armário, bloqueia o termo novamente
+const modalCheckout = document.getElementById("modal-checkout");
+document.querySelector(".close-modal").addEventListener("click", () => {
+    modalCheckout.classList.add("hidden");
+    checkboxTermo.checked = false;
+    checkboxTermo.disabled = true;
+});
+
+// ==== 6. FINALIZAR RESERVA E ENVIAR PIX ====
 const btnFinalizar = document.getElementById("btn-finalizar-reserva");
 
 btnFinalizar.addEventListener("click", async () => {
-    const inputTermo = document.getElementById("upload-termo");
     const inputComprovante = document.getElementById("upload-comprovante");
 
-    // 1. Validação simples: Confere se a pessoa anexou os dois arquivos
-    if (inputTermo.files.length === 0 || inputComprovante.files.length === 0) {
-        return alert("Por favor, anexe o Termo assinado e o Comprovante do PIX para concluir.");
+    // 1. Validações da nova estrutura
+    if (!checkboxTermo.checked) {
+        return alert("Você precisa abrir e aceitar o Termo de Compromisso da Locação.");
+    }
+    if (inputComprovante.files.length === 0) {
+        return alert("Por favor, anexe o Comprovante do PIX para concluir.");
     }
 
-    // Muda o texto do botão para avisar que está enviando
-    btnFinalizar.textContent = "Enviando arquivos... Aguarde.";
+    btnFinalizar.textContent = "Processando reserva...";
     btnFinalizar.disabled = true;
 
     try {
-        const arquivoTermo = inputTermo.files[0];
         const arquivoComprovante = inputComprovante.files[0];
 
-        // 2. Prepara o caminho no Firebase Storage (Cria pastas organizadas por número do armário)
-        const termoRef = ref(storage, `termos/${armarioSelecionado}_${usuarioLogadoUid}_${arquivoTermo.name}`);
+        // 2. Faz o upload APENAS do PIX
         const comprovanteRef = ref(storage, `comprovantes/${armarioSelecionado}_${usuarioLogadoUid}_${arquivoComprovante.name}`);
-
-        // 3. Faz o upload real dos arquivos
-        await uploadBytes(termoRef, arquivoTermo);
         await uploadBytes(comprovanteRef, arquivoComprovante);
-
-        // 4. Pega os links públicos gerados para salvar no banco de dados
-        const linkTermoGerado = await getDownloadURL(termoRef);
         const linkComprovanteGerado = await getDownloadURL(comprovanteRef);
 
-        // 5. Atualiza o armário no Firestore
+        // 3. Atualiza o banco de dados salvando a aceitação digital do termo
         const armarioRef = doc(db, "armarios", armarioSelecionado);
         await updateDoc(armarioRef, {
             status: "pendente",
             usuarioAlocado: usuarioLogadoUid,
-            linkTermo: linkTermoGerado,
+            aceitouTermo: true,
+            dataAceiteTermo: new Date().toISOString(), // Grava a hora exata da assinatura digital
             linkComprovantePix: linkComprovanteGerado
         });
 
-        // 6. Sucesso!
-        alert(`Pré-reserva do armário ${armarioSelecionado} realizada com sucesso! Aguarde a aprovação do grêmio.`);
+        alert(`Pré-reserva do armário ${armarioSelecionado} realizada com sucesso!`);
         
-        // Fecha o modal e recarrega a grade (o armário vai ficar cinza agora)
-        document.getElementById("modal-checkout").classList.add("hidden");
+        modalCheckout.classList.add("hidden");
+        checkboxTermo.checked = false;
+        checkboxTermo.disabled = true;
         carregarMapaArmarios();
 
     } catch (error) {
         console.error("Erro no upload: ", error);
         alert("Ocorreu um erro ao enviar sua reserva. Tente novamente.");
     } finally {
-        // Devolve o botão ao estado normal
         btnFinalizar.textContent = "Concluir Pré-Reserva";
         btnFinalizar.disabled = false;
     }
