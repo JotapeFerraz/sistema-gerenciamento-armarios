@@ -89,9 +89,13 @@ function abrirModalCheckout(numero) {
     armarioSelecionado = numero;
     document.getElementById("checkout-armario-num").textContent = numero;
     
-    // Limpa uploads antigos caso o usuário tenha fechado e aberto de novo
-    document.getElementById("upload-termo").value = "";
+    // Limpa o upload do PIX caso o usuário tenha fechado e aberto de novo
     document.getElementById("upload-comprovante").value = "";
+    
+    // Reseta o checkbox do termo de compromisso
+    const checkboxTermo = document.getElementById("check-termo");
+    checkboxTermo.checked = false;
+    checkboxTermo.disabled = true;
     
     // Mostra o modal na tela
     modal.classList.remove("hidden");
