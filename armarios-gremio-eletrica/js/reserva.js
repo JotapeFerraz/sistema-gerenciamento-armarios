@@ -89,13 +89,17 @@ function abrirModalCheckout(numero) {
     armarioSelecionado = numero;
     document.getElementById("checkout-armario-num").textContent = numero;
     
-    // Limpa o upload do PIX caso o usuário tenha fechado e aberto de novo
-    document.getElementById("upload-comprovante").value = "";
-    
     // Reseta o checkbox do termo de compromisso
     const checkboxTermo = document.getElementById("check-termo");
     checkboxTermo.checked = false;
     checkboxTermo.disabled = true;
+
+    // Reseta a área de pagamento (esconde o QR code e restaura o botão original)
+    document.getElementById("area-pagamento-pix").classList.add("hidden");
+    const btnFinalizar = document.getElementById("btn-finalizar-reserva");
+    btnFinalizar.style.display = "block";
+    btnFinalizar.disabled = false;
+    btnFinalizar.textContent = "Gerar Cobrança PIX";
     
     // Mostra o modal na tela
     modal.classList.remove("hidden");
