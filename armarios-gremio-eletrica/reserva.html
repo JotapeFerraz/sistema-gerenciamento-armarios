@@ -36,44 +36,55 @@
                 <!-- O JavaScript vai desenhar as 144 caixinhas aqui -->
             </div>
         </section>
-        <!-- MODAL DE CHECKOUT (Oculto por padrão) -->
-    <div id="modal-checkout" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Confirmar Reserva: Armário <span id="checkout-armario-num"></span></h2>
+<!-- MODAL DE CHECKOUT (Atualizado com Mercado Pago) -->
+<div id="modal-checkout" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Confirmar Reserva: Armário <span id="checkout-armario-num"></span></h2>
+        
+        <!-- Passo 1: O Termo -->
+        <div class="checkout-step">
+            <h3>1. Termo de Compromisso</h3>
+            <p>Leia o documento abaixo para habilitar o aceite da reserva.</p>
+            <button type="button" id="btn-ler-termo" class="btn-secondary">Ler Termo de Compromisso</button>
             
-            <!-- Passo 1: O Termo -->
-            <div class="checkout-step">
-                <h3>1. Termo de Compromisso</h3>
-                <p>Leia o documento abaixo para habilitar o aceite da reserva.</p>
-                <button type="button" id="btn-ler-termo" class="btn-secondary">Ler Termo de Compromisso</button>
-                
-                <label class="checkbox-label mt-10">
-                    <input type="checkbox" id="check-termo" disabled>
-                    Aceito o Termo de Compromisso da Locação
-                </label>
-            </div>
-
-            <!-- Passo 2: O Pagamento -->
-            <div class="checkout-step">
-                <h3>2. Pagamento (R$ 40,00/semestre)</h3>
-                <div class="pix-area">
-                    <img src="./assets/pix-qrcode.png" alt="QR Code do PIX" class="pix-img">
-                    <div class="pix-copia-cola">
-                        <input type="text" id="pix-codigo" value="00020126910014br.gov.bcb.pix0136d469312d-6601-4b60-b395-e6e51279f65c0229Locacao_Semestral_Armario_G3E520400005303986540540.005802BR5924JOAO_PEDRO_SOARES_FERRAZ6008IPATINGA62150511armariosg3e6304B845" readonly>
-                        <button type="button" id="btn-copiar-pix">Copiar PIX</button>
-                    </div>
-                </div>
-                
-                <label class="upload-label">
-                    Anexe o comprovante de pagamento:
-                    <input type="file" id="upload-comprovante" accept=".pdf,image/*" required>
-                </label>
-            </div>
-
-            <button id="btn-finalizar-reserva" class="btn-primary">Concluir Pré-Reserva</button>
+            <label class="checkbox-label mt-10">
+                <input type="checkbox" id="check-termo" disabled>
+                Aceito o Termo de Compromisso da Locação
+            </label>
         </div>
+
+        <!-- Passo 2: Escolha do Plano e Pagamento Dinâmico -->
+        <div class="checkout-step">
+            <h3>2. Pagamento (Aprovação Automática)</h3>
+            
+            <div class="opcoes-plano-armario">
+                <p>Escolha o tempo de locação:</p>
+                <label>
+                    <input type="radio" name="plano-locacao" value="40" data-meses="6" checked>
+                    1 Semestre (R$ 40,00)
+                </label>
+                <label>
+                    <input type="radio" name="plano-locacao" value="70" data-meses="12">
+                    1 Ano (R$ 70,00)
+                </label>
+            </div>
+
+            <!-- Área oculta inicialmente. Só aparece após o servidor devolver o PIX -->
+            <div class="pix-area hidden" id="area-pagamento-pix">
+                <img src="" alt="QR Code do PIX Dinâmico" class="pix-img" id="qr-code-img">
+                <div class="pix-copia-cola">
+                    <input type="text" id="pix-codigo" value="" readonly>
+                    <button type="button" id="btn-copiar-pix">Copiar PIX</button>
+                </div>
+                <p class="aviso-webhook">Aguardando confirmação do banco... Não feche esta tela.</p>
+            </div>
+        </div>
+
+        <!-- Botão alterado para chamar a função que gera o PIX na Vercel -->
+        <button id="btn-finalizar-reserva" class="btn-primary" disabled>Gerar Cobrança PIX</button>
     </div>
+</div>
     <!-- MODAL DO TEXTO DO TERMO -->
     <div id="modal-termo" class="modal hidden">
         <div class="modal-content">

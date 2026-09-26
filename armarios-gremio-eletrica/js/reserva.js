@@ -160,49 +160,95 @@ document.querySelector(".close-modal").addEventListener("click", () => {
 const btnFinalizar = document.getElementById("btn-finalizar-reserva");
 
 btnFinalizar.addEventListener("click", async () => {
-    const inputComprovante = document.getElementById("upload-comprovante");
-
-    // 1. Validações da nova estrutura
-    if (!checkboxTermo.checked) {
-        return alert("Você precisa abrir e aceitar o Termo de Compromisso da Locação.");
-    }
-    if (inputComprovante.files.length === 0) {
-        return alert("Por favor, anexe o Comprovante do PIX para concluir.");
-    }
-
-    btnFinalizar.textContent = "Processando reserva...";
+    // 1. Bloqueia o botão para evitar múltiplos cliques
     btnFinalizar.disabled = true;
+    btnFinalizar.textContent = "Gerando PIX...";
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("Erro: Você precisa estar logado.");
+        return;
+    }
 
     try {
-        const arquivoComprovante = inputComprovante.files[0];
+        const db = firebase.firestore();
+        
+        // 2. Busca os dados reais do aluno no banco de dados
+        const userDoc = await db.collection('usuarios').doc(user.uid).get();
+        const userData = userDoc.data();
+        
+        if (!userData || !userData.cpf) {
+            alert("Erro: CPF não encontrado no seu cadastro.");
+            btnFinalizar.disabled = false;
+            btnFinalizar.textContent = "Gerar Cobrança PIX";
+            return;
+        }
 
-        // 2. Faz o upload APENAS do PIX
-        const comprovanteRef = ref(storage, `comprovantes/${armarioSelecionado}_${usuarioLogadoUid}_${arquivoComprovante.name}`);
-        await uploadBytes(comprovanteRef, arquivoComprovante);
-        const linkComprovanteGerado = await getDownloadURL(comprovanteRef);
+        // 3. Verifica a opção de plano escolhida
+        const planoSelecionado = document.querySelector('input[name="plano-locacao"]:checked');
+        const valorPlano = Number(planoSelecionado.value);
+        const mesesLocacao = Number(planoSelecionado.getAttribute('data-meses'));
 
-        // 3. Atualiza o banco de dados salvando a aceitação digital do termo
-        const armarioRef = doc(db, "armarios", armarioSelecionado);
-        await updateDoc(armarioRef, {
-            status: "pendente",
-            usuarioAlocado: usuarioLogadoUid,
-            aceitouTermo: true,
-            dataAceiteTermo: new Date().toISOString(), // Grava a hora exata da assinatura digital
-            linkComprovantePix: linkComprovanteGerado
+        // 4. Monta o pacote de dados para o servidor
+        const payload = {
+            armario: armarioSelecionado,
+            usuarioUid: user.uid,
+            email: user.email,
+            nome: userData.nome,
+            cpf: userData.cpf,
+            valor: valorPlano,
+            meses: mesesLocacao
+        };
+
+        // 5. Chama a sua API no Vercel
+        const resposta = await fetch('https://backend-g3e-chnt5nvuz-g3-e1.vercel.app/api/gerar-pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
 
-        alert(`Pré-reserva do armário ${armarioSelecionado} realizada com sucesso!`);
-        
-        modalCheckout.classList.add("hidden");
-        checkboxTermo.checked = false;
-        checkboxTermo.disabled = true;
-        carregarMapaArmarios();
+        const dadosPix = await resposta.json();
 
-    } catch (error) {
-        console.error("Erro no upload: ", error);
-        alert("Ocorreu um erro ao enviar sua reserva. Tente novamente.");
-    } finally {
-        btnFinalizar.textContent = "Concluir Pré-Reserva";
+        if (dadosPix.error) {
+            throw new Error(dadosPix.error);
+        }
+
+        // 6. Exibe o QR Code na tela e esconde o botão original
+        document.getElementById("qr-code-img").src = `data:image/jpeg;base64,${dadosPix.qr_code_base64}`;
+        document.getElementById("pix-codigo").value = dadosPix.qr_code;
+        
+        document.getElementById("area-pagamento-pix").classList.remove("hidden");
+        btnFinalizar.style.display = "none"; 
+
+        // 7. A MÁGICA: Escuta o Firebase em tempo real
+        // Fica observando o documento deste armário. Quando o Webhook da Vercel
+        // mudar o status para 'alugado', o site reage instantaneamente.
+        const unsubscribe = db.collection('armarios').doc(armarioSelecionado).onSnapshot((doc) => {
+            const dadosArmario = doc.data();
+            if (dadosArmario && dadosArmario.status === 'alugado') {
+                alert("Pagamento confirmado com sucesso! O armário é seu.");
+                unsubscribe(); // Para de escutar o banco
+                
+                // Fecha o modal (ajuste para o nome da sua função que esconde o modal)
+                document.getElementById("modal-checkout").classList.add("hidden");
+            }
+        });
+
+    } catch (erro) {
+        console.error("Erro na requisição:", erro);
+        alert("Erro ao conectar com o servidor de pagamento. Tente novamente.");
         btnFinalizar.disabled = false;
+        btnFinalizar.textContent = "Gerar Cobrança PIX";
     }
+});
+// Função para o botão "Copiar PIX"
+document.getElementById("btn-copiar-pix").addEventListener("click", () => {
+    const codigoCopiaCola = document.getElementById("pix-codigo");
+    codigoCopiaCola.select();
+    codigoCopiaCola.setSelectionRange(0, 99999); // Para dispositivos móveis
+    navigator.clipboard.writeText(codigoCopiaCola.value);
+    
+    const btnCopiar = document.getElementById("btn-copiar-pix");
+    btnCopiar.textContent = "Copiado!";
+    setTimeout(() => { btnCopiar.textContent = "Copiar PIX"; }, 2000);
 });
