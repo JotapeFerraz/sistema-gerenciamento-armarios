@@ -1,7 +1,7 @@
 // ==== IMPORTAÇÕES ====
 import { auth, db, storage } from "./firebase.js"; // Adicionado storage
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"; // Adicionado updateDoc
+import { collection, getDocs, doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"; // Novas funções de Storage
 
 // ==== VARIÁVEIS GLOBAIS ====
@@ -164,21 +164,22 @@ document.querySelector(".close-modal").addEventListener("click", () => {
 const btnFinalizar = document.getElementById("btn-finalizar-reserva");
 
 btnFinalizar.addEventListener("click", async () => {
-    // 1. Bloqueia o botão para evitar múltiplos cliques
     btnFinalizar.disabled = true;
     btnFinalizar.textContent = "Gerando PIX...";
 
-    const user = firebase.auth().currentUser;
+    // Usando a variável 'auth' que já foi importada no topo do seu arquivo
+    const user = auth.currentUser; 
+    
     if (!user) {
         alert("Erro: Você precisa estar logado.");
+        btnFinalizar.disabled = false;
+        btnFinalizar.textContent = "Gerar Cobrança PIX";
         return;
     }
 
     try {
-        const db = firebase.firestore();
-        
-        // 2. Busca os dados reais do aluno no banco de dados
-        const userDoc = await db.collection('usuarios').doc(user.uid).get();
+        // Usando as funções modulares 'getDoc' e 'doc' com a variável 'db'
+        const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
         const userData = userDoc.data();
         
         if (!userData || !userData.cpf) {
@@ -188,12 +189,10 @@ btnFinalizar.addEventListener("click", async () => {
             return;
         }
 
-        // 3. Verifica a opção de plano escolhida
         const planoSelecionado = document.querySelector('input[name="plano-locacao"]:checked');
         const valorPlano = Number(planoSelecionado.value);
         const mesesLocacao = Number(planoSelecionado.getAttribute('data-meses'));
 
-        // 4. Monta o pacote de dados para o servidor
         const payload = {
             armario: armarioSelecionado,
             usuarioUid: user.uid,
@@ -204,7 +203,6 @@ btnFinalizar.addEventListener("click", async () => {
             meses: mesesLocacao
         };
 
-        // 5. Chama a sua API no Vercel
         const resposta = await fetch('https://backend-g3e-chnt5nvuz-g3-e1.vercel.app/api/gerar-pix', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -217,23 +215,18 @@ btnFinalizar.addEventListener("click", async () => {
             throw new Error(dadosPix.error);
         }
 
-        // 6. Exibe o QR Code na tela e esconde o botão original
         document.getElementById("qr-code-img").src = `data:image/jpeg;base64,${dadosPix.qr_code_base64}`;
         document.getElementById("pix-codigo").value = dadosPix.qr_code;
         
         document.getElementById("area-pagamento-pix").classList.remove("hidden");
         btnFinalizar.style.display = "none"; 
 
-        // 7. A MÁGICA: Escuta o Firebase em tempo real
-        // Fica observando o documento deste armário. Quando o Webhook da Vercel
-        // mudar o status para 'alugado', o site reage instantaneamente.
-        const unsubscribe = db.collection('armarios').doc(armarioSelecionado).onSnapshot((doc) => {
-            const dadosArmario = doc.data();
+        // A MÁGICA: Escutador em tempo real usando sintaxe modular
+        const unsubscribe = onSnapshot(doc(db, 'armarios', armarioSelecionado), (documento) => {
+            const dadosArmario = documento.data();
             if (dadosArmario && dadosArmario.status === 'alugado') {
                 alert("Pagamento confirmado com sucesso! O armário é seu.");
-                unsubscribe(); // Para de escutar o banco
-                
-                // Fecha o modal (ajuste para o nome da sua função que esconde o modal)
+                unsubscribe(); 
                 document.getElementById("modal-checkout").classList.add("hidden");
             }
         });
