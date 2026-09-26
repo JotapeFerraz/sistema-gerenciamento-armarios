@@ -203,7 +203,7 @@ btnFinalizar.addEventListener("click", async () => {
             meses: mesesLocacao
         };
 
-        const resposta = await fetch('https://backend-g3e-chnt5nvuz-g3-e1.vercel.app/api/gerar-pix', {
+        const resposta = await fetch('https://backend-g3e.vercel.app/api/gerar-pix', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
