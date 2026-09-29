@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - G3E</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .admin-container { max-width: 1000px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .admin-table th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="user-info">Administração G3E</div>
+        <button onclick="window.location.href='reserva.html'" class="btn-secondary">Voltar ao Mapa</button>
+    </header>
+
+    <main class="admin-container">
+        <h2>Controlo de Armários Alugados</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Armário</th>
+                    <th>Aluno</th>
+                    <th>Data de Início</th>
+                    <th>Data de Expiração</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-corpo">
+                <tr><td colspan="5">A carregar dados...</td></tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script type="module" src="./js/admin.js"></script>
+</body>
+</html>
