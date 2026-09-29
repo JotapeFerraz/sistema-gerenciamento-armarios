@@ -10,13 +10,14 @@
 </head>
 <body>
     <header class="app-header">
-        <div class="user-info">
-            Olá, <span id="user-name">Carregando...</span>
-        </div>
-        <button id="btn-logout" class="btn-secondary">Sair do Sistema</button>
-        <!-- Adicione isto dentro do <header> no reserva.html, perto do botão de Sair -->
-        <button onclick="window.location.href='admin.html'" class="btn-secondary">Painel Admin</button>
-    </header>
+    <div class="user-info">
+        Olá, <span id="user-name">Carregando...</span>
+    </div>
+    <!-- Botão oculto por padrão -->
+    <button id="btn-admin" onclick="window.location.href='admin.html'" class="btn-secondary" style="display: none; margin-right: 10px;">Painel Admin</button>
+    
+    <button id="btn-logout" class="btn-secondary">Sair do Sistema</button>
+</header>
 
     <main class="map-container">
         <h2>Selecione um armário disponível</h2>

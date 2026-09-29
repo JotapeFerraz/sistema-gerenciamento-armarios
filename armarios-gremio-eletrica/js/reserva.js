@@ -11,13 +11,20 @@ let usuarioLogadoUid = null;
 // ==== 1. VERIFICAÇÃO DE SEGURANÇA E DADOS DO USUÁRIO ====
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        usuarioLogadoUid = user.uid; // Guarda o UID para usar no checkout depois
+        usuarioLogadoUid = user.uid; 
         
-        // Busca o nome do usuário no banco de dados para o cabeçalho
+        // Busca os dados do utilizador no banco de dados
         const userDoc = await getDoc(doc(db, "usuarios", user.uid));
         if (userDoc.exists()) {
-            // Mostra só o primeiro nome
-            document.getElementById("user-name").textContent = userDoc.data().nome.split(" ")[0]; 
+            const userData = userDoc.data();
+            
+            // Mostra só o primeiro nome no cabeçalho
+            document.getElementById("user-name").textContent = userData.nome.split(" ")[0]; 
+            
+            // LÓGICA DE ADMIN: Revela o botão se for diretoria
+            if (userData.isAdmin === true) {
+                document.getElementById("btn-admin").style.display = "inline-block";
+            }
         }
         
         // Carrega a grelha de armários
