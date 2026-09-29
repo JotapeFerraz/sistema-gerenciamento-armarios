@@ -34,6 +34,20 @@
                 <tr><td colspan="5">A carregar dados...</td></tr>
             </tbody>
         </table>
+        <!-- MODAL DE DADOS DO ALUNO -->
+    <div id="modal-aluno" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" id="fechar-modal-aluno">&times;</span>
+            <h2>Ficha do Alugador</h2>
+            <div style="margin-top: 15px; line-height: 1.8;">
+                <p><strong>Nome:</strong> <span id="detalhe-nome"></span></p>
+                <p><strong>Matrícula:</strong> <span id="detalhe-matricula"></span></p>
+                <p><strong>CPF:</strong> <span id="detalhe-cpf"></span></p>
+                <p><strong>Telefone/WhatsApp:</strong> <span id="detalhe-telefone"></span></p>
+                <p><strong>E-mail:</strong> <span id="detalhe-email"></span></p>
+            </div>
+        </div>
+    </div>
     </main>
 
     <script type="module" src="./js/admin.js"></script>
