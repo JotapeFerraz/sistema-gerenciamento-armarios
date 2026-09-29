@@ -268,6 +268,7 @@ document.getElementById("btn-copiar-pix").addEventListener("click", () => {
     btnCopiar.textContent = "Copiado!";
     setTimeout(() => { btnCopiar.textContent = "Copiar PIX"; }, 2000);
 });
+
 // ==== 7. PAINEL DO ALUNO: MEU ARMÁRIO ====
 async function verificarMeuArmario(uid) {
     const q = query(collection(db, "armarios"), where("locatarioUid", "==", uid), where("status", "==", "alugado"));
@@ -283,13 +284,16 @@ async function verificarMeuArmario(uid) {
         
         let statusTexto = "Ativa";
         let statusCor = "green";
+        let mostrarRenovacao = false; // Controla se o botão de renovar aparece
         
         if (diffDias < 0 && diffDias >= -15) {
             statusTexto = `Vencida (Carência: faltam ${15 + diffDias} dias para perder a vaga)`;
             statusCor = "red";
+            mostrarRenovacao = true;
         } else if (diffDias >= 0 && diffDias <= 15) {
             statusTexto = `Perto de vencer (faltam ${diffDias} dias)`;
             statusCor = "#b8860b"; // amarelo escuro
+            mostrarRenovacao = true;
         }
         
         // Preenche o Modal
@@ -302,13 +306,26 @@ async function verificarMeuArmario(uid) {
         document.getElementById("meu-armario-inicio").textContent = new Date(dados.dataPagamento).toLocaleDateString('pt-BR');
         document.getElementById("meu-armario-fim").textContent = dataFim.toLocaleDateString('pt-BR');
         
-        // Exibe o botão no cabeçalho e configura os cliques
+        // Lógica do botão de renovação
+        const btnRenovar = document.getElementById("btn-renovar-assinatura");
+        if (mostrarRenovacao) {
+            btnRenovar.style.display = "block";
+            btnRenovar.onclick = () => {
+                // Esconde o painel do aluno e abre o checkout normal para o mesmo armário
+                document.getElementById("modal-meu-armario").classList.add("hidden");
+                abrirModalCheckout(dados.numero);
+            };
+        } else {
+            btnRenovar.style.display = "none";
+        }
+        
+        // Exibe o botão principal no cabeçalho
         const btnMeuArmario = document.getElementById("btn-meu-armario");
         btnMeuArmario.style.display = "inline-block";
         
-        btnMeuArmario.addEventListener("click", () => {
+        btnMeuArmario.onclick = () => {
             document.getElementById("modal-meu-armario").classList.remove("hidden");
-        });
+        };
     }
 }
 
