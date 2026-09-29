@@ -1,7 +1,7 @@
 // ==== IMPORTAÇÕES ====
 import { auth, db, storage } from "./firebase.js"; // Adicionado storage
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { collection, getDocs, doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"; // Novas funções de Storage
 
 // ==== VARIÁVEIS GLOBAIS ====
@@ -29,6 +29,7 @@ onAuthStateChanged(auth, async (user) => {
         
         // Carrega a grelha de armários
         carregarMapaArmarios();
+        verificarMeuArmario(user.uid);
     } else {
         // Se não estiver logado, volta para a tela de login
         window.location.href = "index.html";
@@ -42,43 +43,54 @@ document.getElementById("btn-logout").addEventListener("click", () => {
     });
 });
 
-// ==== 3. DESENHAR O MAPA DE ARMÁRIOS ====
+// ==== 3. DESENHAR O MAPA DE ARMÁRIOS E LIMPEZA AUTOMÁTICA ====
 async function carregarMapaArmarios() {
     const gridCorredor = document.getElementById("grid-corredor");
     const gridBloco4 = document.getElementById("grid-bloco4");
     
-    // Mensagem de carregamento
     gridCorredor.innerHTML = "<p>Carregando armários...</p>";
     gridBloco4.innerHTML = "<p>Carregando armários...</p>";
 
-    // Puxa os dados do Firestore
     const querySnapshot = await getDocs(collection(db, "armarios"));
     const armarios = [];
-    querySnapshot.forEach((doc) => armarios.push(doc.data()));
+    const hoje = new Date();
 
-    // Ordena para que B4-001 venha antes de B4-002
+    for (const documento of querySnapshot.docs) {
+        let armario = documento.data();
+
+        // MÁGICA: Se estiver alugado, verifica se já passou da carência
+        if (armario.status === 'alugado' && armario.dataExpiracao) {
+            const vencimento = new Date(armario.dataExpiracao);
+            const diasAtraso = Math.ceil((hoje.getTime() - vencimento.getTime()) / (1000 * 3600 * 24));
+            
+            // Se atrasou mais de 15 dias, liberta o armário na base de dados silenciosamente
+            if (diasAtraso > 15) {
+                await updateDoc(doc(db, "armarios", armario.numero), {
+                    status: 'livre',
+                    locatarioUid: null,
+                    dataExpiracao: null,
+                    dataPagamento: null,
+                    pagamentoConfirmado: false
+                });
+                armario.status = 'livre'; // Atualiza localmente para o botão ficar verde já nesta tela
+            }
+        }
+        armarios.push(armario);
+    }
+
     armarios.sort((a, b) => a.numero.localeCompare(b.numero));
-
-    // Limpa as mensagens de carregamento
     gridCorredor.innerHTML = "";
     gridBloco4.innerHTML = "";
 
-    // Desenha cada botão de armário
     armarios.forEach(armario => {
         const divBox = document.createElement("div");
-        
-        // Aplica as classes (ex: "locker livre" ou "locker pendente")
         divBox.classList.add("locker", armario.status); 
-        
-        // Mostra apenas o número final na caixinha
         divBox.textContent = armario.numero.split('-')[1];
         
-        // Se estiver livre, permite clicar para abrir o checkout
         if (armario.status === "livre") {
             divBox.addEventListener("click", () => abrirModalCheckout(armario.numero));
         }
 
-        // Separa nas áreas corretas
         if (armario.numero.startsWith("C-")) {
             gridCorredor.appendChild(divBox);
         } else if (armario.numero.startsWith("B4-")) {
@@ -255,4 +267,57 @@ document.getElementById("btn-copiar-pix").addEventListener("click", () => {
     const btnCopiar = document.getElementById("btn-copiar-pix");
     btnCopiar.textContent = "Copiado!";
     setTimeout(() => { btnCopiar.textContent = "Copiar PIX"; }, 2000);
+});
+// ==== 7. PAINEL DO ALUNO: MEU ARMÁRIO ====
+async function verificarMeuArmario(uid) {
+    const q = query(collection(db, "armarios"), where("locatarioUid", "==", uid), where("status", "==", "alugado"));
+    const snapshot = await getDocs(q);
+    
+    if (!snapshot.empty) {
+        const dados = snapshot.docs[0].data();
+        const dataFim = new Date(dados.dataExpiracao);
+        const hoje = new Date();
+        
+        // Calcula a diferença em dias
+        const diffDias = Math.ceil((dataFim.getTime() - hoje.getTime()) / (1000 * 3600 * 24));
+        
+        let statusTexto = "Ativa";
+        let statusCor = "green";
+        
+        if (diffDias < 0 && diffDias >= -15) {
+            statusTexto = `Vencida (Carência: faltam ${15 + diffDias} dias para perder a vaga)`;
+            statusCor = "red";
+        } else if (diffDias >= 0 && diffDias <= 15) {
+            statusTexto = `Perto de vencer (faltam ${diffDias} dias)`;
+            statusCor = "#b8860b"; // amarelo escuro
+        }
+        
+        // Preenche o Modal
+        document.getElementById("meu-armario-num").textContent = dados.numero;
+        const elStatus = document.getElementById("meu-armario-status");
+        elStatus.textContent = statusTexto;
+        elStatus.style.color = statusCor;
+        elStatus.style.fontWeight = "bold";
+        
+        document.getElementById("meu-armario-inicio").textContent = new Date(dados.dataPagamento).toLocaleDateString('pt-BR');
+        document.getElementById("meu-armario-fim").textContent = dataFim.toLocaleDateString('pt-BR');
+        
+        // Exibe o botão no cabeçalho e configura os cliques
+        const btnMeuArmario = document.getElementById("btn-meu-armario");
+        btnMeuArmario.style.display = "inline-block";
+        
+        btnMeuArmario.addEventListener("click", () => {
+            document.getElementById("modal-meu-armario").classList.remove("hidden");
+        });
+    }
+}
+
+// Fechar modal do Meu Armário
+document.getElementById("fechar-meu-armario").addEventListener("click", () => {
+    document.getElementById("modal-meu-armario").classList.add("hidden");
+});
+
+// Botão para reler o termo
+document.getElementById("btn-reler-termo").addEventListener("click", () => {
+    document.getElementById("modal-termo").classList.remove("hidden");
 });

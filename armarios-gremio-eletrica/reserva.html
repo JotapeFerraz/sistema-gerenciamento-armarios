@@ -14,8 +14,8 @@
         Olá, <span id="user-name">Carregando...</span>
     </div>
     <!-- Botão oculto por padrão -->
+    <button id="btn-meu-armario" class="btn-secondary" style="display: none; margin-right: 10px;">Meu Armário</button>
     <button id="btn-admin" onclick="window.location.href='admin.html'" class="btn-secondary" style="display: none; margin-right: 10px;">Painel Admin</button>
-    
     <button id="btn-logout" class="btn-secondary">Sair do Sistema</button>
 </header>
 
@@ -120,5 +120,19 @@
     </main>
 
     <script type="module" src="./js/reserva.js"></script>
+    <!-- MODAL MEU ARMÁRIO -->
+    <div id="modal-meu-armario" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" id="fechar-meu-armario">&times;</span>
+            <h2>Detalhes do Meu Armário</h2>
+            <div style="margin-top: 15px; line-height: 1.8;">
+                <p><strong>Armário:</strong> <span id="meu-armario-num"></span></p>
+                <p><strong>Status:</strong> <span id="meu-armario-status"></span></p>
+                <p><strong>Data de Início:</strong> <span id="meu-armario-inicio"></span></p>
+                <p><strong>Data de Término:</strong> <span id="meu-armario-fim"></span></p>
+                <button id="btn-reler-termo" class="btn-secondary" style="margin-top: 15px;">Ler Termo de Compromisso</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
