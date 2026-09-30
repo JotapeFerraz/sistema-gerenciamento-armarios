@@ -130,3 +130,44 @@ body {
 .btn-toggle-senha:hover {
     color: #b00000;
 }
+/* ==== RODAPÉ ==== */
+.app-footer {
+    text-align: center;
+    padding: 25px 20px;
+    margin-top: 50px;
+    font-size: 0.85rem;
+    color: #6c757d; /* Cinzento discreto para não distrair */
+    border-top: 1px solid #eaeaea;
+    background-color: transparent;
+}
+
+.app-footer p {
+    margin: 0;
+    line-height: 1.6;
+}
+/* ==== ESTILOS DA LOGO ==== */
+
+/* Logo na tela de Login */
+.logo-login {
+    width: 110px; /* Tamanho da logo no login */
+    display: block;
+    margin: 0 auto 15px auto; /* Centraliza e empurra o título para baixo */
+    border-radius: 50%; /* Deixa a imagem com corte circular */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Dá um leve destaque */
+}
+
+/* Alinhamento no Cabeçalho da Reserva */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espaço entre a logo e o texto "Olá, João" */
+}
+
+/* Logo pequena no Cabeçalho */
+.logo-header {
+    height: 45px; /* Altura proporcional à barra vermelha */
+    width: 45px;
+    border-radius: 50%;
+    object-fit: cover; /* Garante que a imagem não distorce */
+    border: 2px solid #fff; /* Cria uma bordinha branca elegante */
+}
