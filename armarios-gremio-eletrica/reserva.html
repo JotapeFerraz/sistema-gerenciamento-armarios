@@ -1,144 +1,442 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Mapa de Armários - G3E</title>
+
     <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://backend-g3e.vercel.app; object-src 'none'; base-uri 'self'; frame-ancestors 'none'">
-    <!-- Reaproveitamos o estilo geral e adicionamos o estilo do grid -->
+
+    <meta
+        http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://backend-g3e.vercel.app; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+    >
+
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/grid.css">
 </head>
+
 <body>
+
     <header class="app-header">
-    <div class="user-info">
-        Olá, <span id="user-name">Carregando...</span>
-    </div>
-    <!-- Botão oculto por padrão -->
-    <button id="btn-meu-armario" class="btn-secondary" style="display: none; margin-right: 10px;">Meu Armário</button>
-    <button id="btn-admin" class="btn-secondary" style="display: none; margin-right: 10px;">Painel Admin</button>
-    <button id="btn-logout" class="btn-secondary">Sair do Sistema</button>
-</header>
+
+        <div class="header-left">
+            <img
+                src="./img/logo.png"
+                alt="Logo Grêmio"
+                class="logo-header"
+            >
+
+            <div class="user-info">
+                Olá, <span id="user-name">Carregando...</span>
+            </div>
+        </div>
+
+        <button
+            id="btn-meu-armario"
+            class="btn-secondary"
+            style="display: none; margin-right: 10px;"
+        >
+            Meu Armário
+        </button>
+
+        <button
+            id="btn-admin"
+            class="btn-secondary"
+            style="display: none; margin-right: 10px;"
+        >
+            Painel Admin
+        </button>
+
+        <button
+            id="btn-logout"
+            class="btn-secondary"
+        >
+            Sair do Sistema
+        </button>
+
+    </header>
+
 
     <main class="map-container">
+
         <h2>Selecione um armário disponível</h2>
+
         <p class="legenda">
-            <span class="dot verde"></span> Livre 
+            <span class="dot verde"></span> Livre
             <span class="dot cinza"></span> Ocupado/Pendente
         </p>
-        
+
+
         <section class="locker-section">
+
             <h3>Corredor do Grêmio (32 Armários)</h3>
-            <div id="grid-corredor" class="locker-grid corredor-grid">
+
+            <div
+                id="grid-corredor"
+                class="locker-grid corredor-grid"
+            >
                 <!-- O JavaScript vai desenhar as 32 caixinhas aqui -->
             </div>
+
         </section>
+
 
         <section class="locker-section">
+
             <h3>Bloco 4 - 1º Andar (144 Armários)</h3>
-            <div id="grid-bloco4" class="locker-grid bloco4-grid">
+
+            <div
+                id="grid-bloco4"
+                class="locker-grid bloco4-grid"
+            >
                 <!-- O JavaScript vai desenhar as 144 caixinhas aqui -->
             </div>
+
         </section>
-<!-- MODAL DE CHECKOUT (Atualizado com Mercado Pago) -->
-<div id="modal-checkout" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Confirmar Reserva: Armário <span id="checkout-armario-num"></span></h2>
-        
-        <!-- Passo 1: O Termo -->
-        <div class="checkout-step">
-            <h3>1. Termo de Compromisso</h3>
-            <p>Leia o documento abaixo para habilitar o aceite da reserva.</p>
-            <button type="button" id="btn-ler-termo" class="btn-secondary">Ler Termo de Compromisso</button>
-            
-            <label class="checkbox-label mt-10">
-                <input type="checkbox" id="check-termo" disabled>
-                Aceito o Termo de Compromisso da Locação
-            </label>
-        </div>
 
-        <!-- Passo 2: Escolha do Plano e Pagamento Dinâmico -->
-        <div class="checkout-step">
-            <h3>2. Pagamento (Aprovação Automática)</h3>
-            
-            <div class="opcoes-plano-armario">
-                <p>Escolha o tempo de locação:</p>
-                <label>
-                    <input type="radio" name="plano-locacao" value="semestre" checked>
-                    1 Semestre (R$ 40,00)
-                </label>
-                <label>
-                    <input type="radio" name="plano-locacao" value="anual">
-                    1 Ano (R$ 70,00)
-                </label>
-            </div>
 
-            <!-- Área oculta inicialmente. Só aparece após o servidor devolver o PIX -->
-            <div class="pix-area hidden" id="area-pagamento-pix">
-                <img src="" alt="QR Code do PIX Dinâmico" class="pix-img" id="qr-code-img">
-                <div class="pix-copia-cola">
-                    <input type="text" id="pix-codigo" value="" readonly>
-                    <button type="button" id="btn-copiar-pix">Copiar PIX</button>
+        <!-- MODAL DE CHECKOUT -->
+
+        <div
+            id="modal-checkout"
+            class="modal hidden"
+        >
+
+            <div class="modal-content">
+
+                <span class="close-modal">&times;</span>
+
+                <h2>
+                    Confirmar Reserva:
+                    Armário <span id="checkout-armario-num"></span>
+                </h2>
+
+
+                <!-- PASSO 1: TERMO -->
+
+                <div class="checkout-step">
+
+                    <h3>1. Termo de Compromisso</h3>
+
+                    <p>
+                        Leia o documento abaixo para habilitar o aceite da reserva.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="btn-ler-termo"
+                        class="btn-secondary"
+                    >
+                        Ler Termo de Compromisso
+                    </button>
+
+                    <label class="checkbox-label mt-10">
+
+                        <input
+                            type="checkbox"
+                            id="check-termo"
+                            disabled
+                        >
+
+                        Aceito o Termo de Compromisso da Locação
+
+                    </label>
+
                 </div>
-                <p class="aviso-webhook">Aguardando confirmação do banco... Não feche esta tela.</p>
+
+
+                <!-- PASSO 2: PAGAMENTO -->
+
+                <div class="checkout-step">
+
+                    <h3>2. Pagamento (Aprovação Automática)</h3>
+
+                    <div class="opcoes-plano-armario">
+
+                        <p>Escolha o tempo de locação:</p>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="plano-locacao"
+                                value="semestre"
+                                checked
+                            >
+
+                            1 Semestre (R$ 40,00)
+
+                        </label>
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="plano-locacao"
+                                value="anual"
+                            >
+
+                            1 Ano (R$ 70,00)
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- PIX -->
+
+                    <div
+                        class="pix-area hidden"
+                        id="area-pagamento-pix"
+                    >
+
+                        <img
+                            src=""
+                            alt="QR Code do PIX Dinâmico"
+                            class="pix-img"
+                            id="qr-code-img"
+                        >
+
+                        <div class="pix-copia-cola">
+
+                            <input
+                                type="text"
+                                id="pix-codigo"
+                                value=""
+                                readonly
+                            >
+
+                            <button
+                                type="button"
+                                id="btn-copiar-pix"
+                            >
+                                Copiar PIX
+                            </button>
+
+                        </div>
+
+                        <p class="aviso-webhook">
+                            Aguardando confirmação do banco...
+                            Não feche esta tela.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="btn-finalizar-reserva"
+                    class="btn-primary"
+                    disabled
+                >
+                    Gerar Cobrança PIX
+                </button>
+
             </div>
+
         </div>
 
-        <!-- Botão alterado para chamar a função que gera o PIX na Vercel -->
-        <button id="btn-finalizar-reserva" class="btn-primary" disabled>Gerar Cobrança PIX</button>
-    </div>
-</div>
-    <!-- MODAL DO TEXTO DO TERMO -->
-    <div id="modal-termo" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-termo">&times;</span>
-            <h2>TERMO DE COMPROMISSO E RESPONSABILIDADE - LOCAÇÃO DE ARMÁRIO</h2>
-            <div class="texto-termo">
-                <p><strong>LOCADOR:</strong> Grêmio dos Estudantes de Engenharia Elétrica da UFMG (G3E)[cite: 10].</p>
-                <p>Pelo presente instrumento, as partes firmam o compromisso de locação de um Armário, localizado nas dependências da Escola de Engenharia da UFMG, sujeitando-se às seguintes cláusulas e condições[cite: 10]:</p>
-                
-                <p><strong>CLÁUSULA 1ª - DO PRAZO E DA RENOVAÇÃO</strong><br>
-                O prazo de locação é de 6 (seis) meses[cite: 10].<br>
-                § 1º. A renovação não é automática[cite: 10]. Havendo interesse na prorrogação, o(a) LOCATÁRIO(A) deverá procurar o G3E com no mínimo 15 (quinze) dias de antecedência do vencimento para firmar novo acordo, sujeito à disponibilidade[cite: 10].</p>
-                
-                <p><strong>CLÁUSULA 2ª DO USO E CONSERVAÇÃO DO BEM</strong><br>
-                O armário destina-se exclusivamente à guarda de materiais acadêmicos e pertences pessoais do(a) LOCATÁRIO(A), sendo expressamente PROIBIDO[cite: 10]: I. Produtos inflamáveis, tóxicos, ilícitos ou que exalem odores fortes[cite: 10]; II. Pintar, riscar ou realizar qualquer modificação na estrutura interna ou externa do armário[cite: 10]; III. Sublocar o armário para terceiros[cite: 10].<br>
-                § 1º. O(a) LOCATÁRIO(A) compromete-se a manter o armário limpo e conservado, arcando com os custos de reparo caso seja constatado qualquer dano estrutural ou rasura ao final do contrato[cite: 10].</p>
-                
-                <p><strong>CLÁUSULA 3ª DA SEGURANÇA E RESPONSABILIDADE</strong><br>
-                A aquisição, colocação e guarda da chave do cadeado utilizado no armário são de inteira e exclusiva responsabilidade do(a) LOCATÁRIO(A)[cite: 10].<br>
-                § 1º. O G3E não se responsabiliza, em hipótese alguma, por furtos, roubos, perdas ou danos aos objetos guardados no interior do armário[cite: 10].</p>
-                
-                <p><strong>CLÁUSULA 4ª DO ENCERRAMENTO E DESOCUPAÇÃO</strong><br>
-                Ao término do prazo estipulado na Cláusula 1ª, caso não haja renovação, o(a) LOCATÁRIO(A) obriga-se a esvaziar o armário, retirar o seu cadeado e deixá-lo limpo e desimpedido[cite: 10].<br>
-                § 1º. O não cumprimento da desocupação no prazo acarretará o rompimento imediato do cadeado por parte da Diretoria do G3E[cite: 10].<br>
-                § 2º. Os pertences retirados ficarão retidos na sede do Grêmio por um prazo máximo de 30 (trinta) dias[cite: 10]. Após esse período, o G3E dará a destinação que julgar conveniente (doação ou descarte), sem direito a qualquer reclamação ou indenização por parte do(a) LOCATÁRIO(A)[cite: 10].</p>
+
+        <!-- MODAL DO TEXTO DO TERMO -->
+
+        <div
+            id="modal-termo"
+            class="modal hidden"
+        >
+
+            <div class="modal-content">
+
+                <span class="close-termo">&times;</span>
+
+                <h2>
+                    TERMO DE COMPROMISSO E RESPONSABILIDADE - LOCAÇÃO DE ARMÁRIO
+                </h2>
+
+                <div class="texto-termo">
+
+                    <p>
+                        <strong>LOCADOR:</strong>
+                        Grêmio dos Estudantes de Engenharia Elétrica da UFMG (G3E).
+                    </p>
+
+                    <p>
+                        Pelo presente instrumento, as partes firmam o compromisso de locação
+                        de um Armário, localizado nas dependências da Escola de Engenharia
+                        da UFMG, sujeitando-se às seguintes cláusulas e condições:
+                    </p>
+
+
+                    <p>
+                        <strong>CLÁUSULA 1ª - DO PRAZO E DA RENOVAÇÃO</strong><br>
+
+                        O prazo de locação é de 6 (seis) meses.<br>
+
+                        § 1º. A renovação não é automática. Havendo interesse na prorrogação,
+                        o(a) LOCATÁRIO(A) deverá procurar o G3E com no mínimo 15 (quinze)
+                        dias de antecedência do vencimento para firmar novo acordo,
+                        sujeito à disponibilidade.
+                    </p>
+
+
+                    <p>
+                        <strong>CLÁUSULA 2ª DO USO E CONSERVAÇÃO DO BEM</strong><br>
+
+                        O armário destina-se exclusivamente à guarda de materiais acadêmicos
+                        e pertences pessoais do(a) LOCATÁRIO(A), sendo expressamente PROIBIDO:
+
+                        I. Produtos inflamáveis, tóxicos, ilícitos ou que exalem odores fortes;
+
+                        II. Pintar, riscar ou realizar qualquer modificação na estrutura
+                        interna ou externa do armário;
+
+                        III. Sublocar o armário para terceiros.<br>
+
+                        § 1º. O(a) LOCATÁRIO(A) compromete-se a manter o armário limpo
+                        e conservado, arcando com os custos de reparo caso seja constatado
+                        qualquer dano estrutural ou rasura ao final do contrato.
+                    </p>
+
+
+                    <p>
+                        <strong>CLÁUSULA 3ª DA SEGURANÇA E RESPONSABILIDADE</strong><br>
+
+                        A aquisição, colocação e guarda da chave do cadeado utilizado no
+                        armário são de inteira e exclusiva responsabilidade do(a) LOCATÁRIO(A).<br>
+
+                        § 1º. O G3E não se responsabiliza, em hipótese alguma, por furtos,
+                        roubos, perdas ou danos aos objetos guardados no interior do armário.
+                    </p>
+
+
+                    <p>
+                        <strong>CLÁUSULA 4ª DO ENCERRAMENTO E DESOCUPAÇÃO</strong><br>
+
+                        Ao término do prazo estipulado na Cláusula 1ª, caso não haja renovação,
+                        o(a) LOCATÁRIO(A) obriga-se a esvaziar o armário, retirar o seu cadeado
+                        e deixá-lo limpo e desimpedido.<br>
+
+                        § 1º. O não cumprimento da desocupação no prazo acarretará o rompimento
+                        imediato do cadeado por parte da Diretoria do G3E.<br>
+
+                        § 2º. Os pertences retirados ficarão retidos na sede do Grêmio por um
+                        prazo máximo de 30 (trinta) dias. Após esse período, o G3E dará a
+                        destinação que julgar conveniente (doação ou descarte), sem direito
+                        a qualquer reclamação ou indenização por parte do(a) LOCATÁRIO(A).
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="btn-concordar-termo"
+                    class="btn-primary"
+                >
+                    Li e aceito os termos
+                </button>
+
             </div>
-            <button type="button" id="btn-concordar-termo" class="btn-primary">Li e aceito os termos</button>
+
         </div>
-    </div>
+
     </main>
 
-    <script type="module" src="./js/reserva.js"></script>
+
     <!-- MODAL MEU ARMÁRIO -->
-    <div id="modal-meu-armario" class="modal hidden">
+
+    <div
+        id="modal-meu-armario"
+        class="modal hidden"
+    >
+
         <div class="modal-content">
-            <span class="close-modal" id="fechar-meu-armario">&times;</span>
+
+            <span
+                class="close-modal"
+                id="fechar-meu-armario"
+            >
+                &times;
+            </span>
+
             <h2>Detalhes do Meu Armário</h2>
+
             <div style="margin-top: 15px; line-height: 1.8;">
-                <p><strong>Armário:</strong> <span id="meu-armario-num"></span></p>
-                <p><strong>Status:</strong> <span id="meu-armario-status"></span></p>
-                <p><strong>Data de Início:</strong> <span id="meu-armario-inicio"></span></p>
-                <p><strong>Data de Término:</strong> <span id="meu-armario-fim"></span></p>
-                
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                    <button id="btn-renovar-assinatura" class="btn-primary" style="display: none;">Renovar Assinatura (Gerar PIX)</button>
-                    <button id="btn-reler-termo" class="btn-secondary">Ler Termo de Compromisso</button>
+
+                <p>
+                    <strong>Armário:</strong>
+                    <span id="meu-armario-num"></span>
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    <span id="meu-armario-status"></span>
+                </p>
+
+                <p>
+                    <strong>Data de Início:</strong>
+                    <span id="meu-armario-inicio"></span>
+                </p>
+
+                <p>
+                    <strong>Data de Término:</strong>
+                    <span id="meu-armario-fim"></span>
+                </p>
+
+
+                <div
+                    style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        margin-top: 20px;
+                    "
+                >
+
+                    <button
+                        id="btn-renovar-assinatura"
+                        class="btn-primary"
+                        style="display: none;"
+                    >
+                        Renovar Assinatura (Gerar PIX)
+                    </button>
+
+                    <button
+                        id="btn-reler-termo"
+                        class="btn-secondary"
+                    >
+                        Ler Termo de Compromisso
+                    </button>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
+
+    <footer class="app-footer">
+
+        <p>
+            &copy; 2026 G3E.
+            Desenvolvido por <strong>João Pedro Ferraz</strong>.
+            <br>
+            Última atualização: Setembro de 2026.
+        </p>
+
+    </footer>
+
+
+    <script
+        type="module"
+        src="./js/reserva.js"
+    ></script>
+
 </body>
 </html>
+```
