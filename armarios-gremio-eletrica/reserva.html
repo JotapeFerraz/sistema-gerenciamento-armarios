@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa de Armários - G3E</title>
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://backend-g3e.vercel.app; object-src 'none'; base-uri 'self'; frame-ancestors 'none'">
     <!-- Reaproveitamos o estilo geral e adicionamos o estilo do grid -->
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/grid.css">
@@ -15,7 +17,7 @@
     </div>
     <!-- Botão oculto por padrão -->
     <button id="btn-meu-armario" class="btn-secondary" style="display: none; margin-right: 10px;">Meu Armário</button>
-    <button id="btn-admin" onclick="window.location.href='admin.html'" class="btn-secondary" style="display: none; margin-right: 10px;">Painel Admin</button>
+    <button id="btn-admin" class="btn-secondary" style="display: none; margin-right: 10px;">Painel Admin</button>
     <button id="btn-logout" class="btn-secondary">Sair do Sistema</button>
 </header>
 
@@ -64,11 +66,11 @@
             <div class="opcoes-plano-armario">
                 <p>Escolha o tempo de locação:</p>
                 <label>
-                    <input type="radio" name="plano-locacao" value="40" data-meses="6" checked>
+                    <input type="radio" name="plano-locacao" value="semestre" checked>
                     1 Semestre (R$ 40,00)
                 </label>
                 <label>
-                    <input type="radio" name="plano-locacao" value="70" data-meses="12">
+                    <input type="radio" name="plano-locacao" value="anual">
                     1 Ano (R$ 70,00)
                 </label>
             </div>

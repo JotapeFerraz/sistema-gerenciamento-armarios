@@ -93,8 +93,7 @@ formCadastro.addEventListener('submit', async (e) => {
             matricula: matricula,
             cpf: cpf,
             telefone: telefone,
-            email: email,
-            admin: false,
+            email: user.email,
             dataCadastro: new Date()
         });
 

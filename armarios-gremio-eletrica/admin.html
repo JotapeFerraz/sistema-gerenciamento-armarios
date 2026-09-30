@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin - G3E</title>
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://backend-g3e.vercel.app; object-src 'none'; base-uri 'self'; frame-ancestors 'none'">
     <link rel="stylesheet" href="./css/style.css">
     <style>
         .admin-container { max-width: 1000px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; }
@@ -15,7 +17,7 @@
 <body>
     <header class="app-header">
         <div class="user-info">Administração G3E</div>
-        <button onclick="window.location.href='reserva.html'" class="btn-secondary">Voltar ao Mapa</button>
+        <button id="btn-voltar" class="btn-secondary">Voltar ao Mapa</button>
     </header>
 
     <main class="admin-container">
