@@ -1,116 +1,97 @@
-import { auth, db } from "./firebase.js";
+import { auth, API_BASE_URL } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// 1. Verificação de Segurança (Porteiro do Painel)
+async function adminFetch(path) {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Autenticação necessária.');
+    const token = await user.getIdToken();
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        const error = new Error(data.error?.message || 'Falha ao comunicar com o servidor.');
+        error.status = response.status;
+        throw error;
+    }
+    return data;
+}
+
+document.getElementById('btn-voltar').addEventListener('click', () => {
+    window.location.href = 'reserva.html';
+});
+
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        try {
-            const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-            const userData = userDoc.data();
-            
-            if (userData && userData.isAdmin === true) {
-                carregarPainelAdmin();
-            } else {
-                alert("Acesso restrito: Apenas a diretoria tem acesso a esta página.");
-                window.location.href = "reserva.html";
-            }
-        } catch (erro) {
-            console.error("Erro ao verificar permissões:", erro);
-            window.location.href = "reserva.html";
-        }
-    } else {
+    if (!user) {
         window.location.href = "index.html";
+        return;
+    }
+    try {
+        await carregarPainelAdmin();
+    } catch (error) {
+        if (error.status === 403) {
+            alert("Acesso restrito: apenas a diretoria tem acesso a esta página.");
+            window.location.href = "reserva.html";
+            return;
+        }
+        document.getElementById("tabela-corpo").textContent = "Erro ao carregar os dados.";
     }
 });
 
-// 2. Lógica para carregar e desenhar a tabela
+function td(text) {
+    const cell = document.createElement('td');
+    cell.textContent = text ?? '-';
+    return cell;
+}
+
+function mostrarAluno(usuario) {
+    document.getElementById("detalhe-nome").textContent = usuario.nome || "Não informado";
+    document.getElementById("detalhe-matricula").textContent = usuario.matricula || "Não informada";
+    document.getElementById("detalhe-cpf").textContent = usuario.cpf || "Não informado";
+    document.getElementById("detalhe-telefone").textContent = usuario.telefone || "Não informado";
+    document.getElementById("detalhe-email").textContent = usuario.email || "Não informado";
+    document.getElementById("modal-aluno").classList.remove("hidden");
+}
+
 async function carregarPainelAdmin() {
     const tbody = document.getElementById("tabela-corpo");
-    
-    try {
-        const querySnapshot = await getDocs(collection(db, "armarios"));
-        tbody.innerHTML = ""; 
+    const { armarios } = await adminFetch('/api/admin/armarios');
+    tbody.textContent = "";
 
-        const armarios = [];
-        querySnapshot.forEach((docSnap) => armarios.push(docSnap.data()));
-        armarios.sort((a, b) => a.numero.localeCompare(b.numero));
+    if (armarios.length === 0) {
+        const row = document.createElement('tr');
+        const empty = td('Nenhum armário alugado no momento.');
+        empty.colSpan = 5;
+        empty.style.textAlign = 'center';
+        row.appendChild(empty);
+        tbody.appendChild(row);
+        return;
+    }
 
-        let encontrouAlugados = false;
+    for (const armario of armarios) {
+        const row = document.createElement('tr');
+        const locker = td(armario.numero);
+        locker.style.fontWeight = 'bold';
 
-        for (const armario of armarios) {
-            if (armario.status === 'alugado') {
-                encontrouAlugados = true;
-                let nomeAluno = "Dados indisponíveis";
-                
-                if (armario.locatarioUid) {
-                    const docAluno = await getDoc(doc(db, "usuarios", armario.locatarioUid));
-                    if (docAluno.exists()) {
-                        nomeAluno = docAluno.data().nome;
-                    }
-                }
-
-                const dataInicio = armario.dataPagamento ? new Date(armario.dataPagamento).toLocaleDateString('pt-BR') : '-';
-                const dataFim = armario.dataExpiracao ? new Date(armario.dataExpiracao).toLocaleDateString('pt-BR') : '-';
-
-                // Transforma o nome num elemento clicável se tivermos o UID do locatário
-                const tdNome = armario.locatarioUid && nomeAluno !== "Dados indisponíveis"
-                    ? `<span onclick="abrirModalAluno('${armario.locatarioUid}')" style="color: #0056b3; cursor: pointer; text-decoration: underline;" title="Ver ficha completa">${nomeAluno}</span>`
-                    : nomeAluno;
-
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td><strong>${armario.numero}</strong></td>
-                    <td>${tdNome}</td>
-                    <td>${dataInicio}</td>
-                    <td>${dataFim}</td>
-                    <td style="color: green; font-weight: bold;">Ativo</td>
-                `;
-                tbody.appendChild(tr);
-            }
+        const student = td(armario.usuario.nome || 'Dados indisponíveis');
+        if (armario.usuario.nome) {
+            student.style.color = '#0056b3';
+            student.style.cursor = 'pointer';
+            student.style.textDecoration = 'underline';
+            student.title = 'Ver ficha completa';
+            student.addEventListener('click', () => mostrarAluno(armario.usuario));
         }
 
-        if (!encontrouAlugados) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum armário alugado no momento.</td></tr>`;
-        }
-
-    } catch (erro) {
-        console.error("Erro ao carregar o painel:", erro);
-        tbody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Erro ao carregar os dados.</td></tr>`;
+        const start = armario.dataPagamento ? new Date(armario.dataPagamento).toLocaleDateString('pt-BR') : '-';
+        const expiration = armario.dataExpiracao ? new Date(armario.dataExpiracao).toLocaleDateString('pt-BR') : '-';
+        const status = td('Ativo');
+        status.style.color = 'green';
+        status.style.fontWeight = 'bold';
+        row.append(locker, student, td(start), td(expiration), status);
+        tbody.appendChild(row);
     }
 }
 
-// 3. Lógica do Modal de Detalhes do Aluno
-const modalAluno = document.getElementById("modal-aluno");
-const btnFecharModalAluno = document.getElementById("fechar-modal-aluno");
-
-if (btnFecharModalAluno) {
-    btnFecharModalAluno.addEventListener("click", () => {
-        modalAluno.classList.add("hidden");
-    });
-}
-
-// Como usamos módulos, expomos a função ao 'window' para o HTML conseguir ativá-la no clique
-window.abrirModalAluno = async function(uid) {
-    try {
-        const userDoc = await getDoc(doc(db, "usuarios", uid));
-        if (userDoc.exists()) {
-            const dados = userDoc.data();
-            
-            // Preenche os campos do pop-up
-            document.getElementById("detalhe-nome").textContent = dados.nome || "Não informado";
-            document.getElementById("detalhe-matricula").textContent = dados.matricula || "Não informada";
-            document.getElementById("detalhe-cpf").textContent = dados.cpf || "Não informado";
-            document.getElementById("detalhe-telefone").textContent = dados.telefone || "Não informado";
-            document.getElementById("detalhe-email").textContent = dados.email || "Não informado";
-            
-            // Exibe o pop-up
-            modalAluno.classList.remove("hidden");
-        } else {
-            alert("A ficha deste aluno já não se encontra na base de dados.");
-        }
-    } catch (erro) {
-        console.error("Erro ao buscar dados do aluno:", erro);
-        alert("Ocorreu um erro ao tentar ler as informações.");
-    }
-};
+document.getElementById("fechar-modal-aluno").addEventListener("click", () => {
+    document.getElementById("modal-aluno").classList.add("hidden");
+});
